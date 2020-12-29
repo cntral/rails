@@ -76,6 +76,7 @@ module ActiveRecord
             type = :integer
             options[:limit] ||= 8
             options[:primary_key] = true
+            options[:unsigned] ||= true # NOTE: At CNTRAL, we default our primary keys to be unsigned. As of Rails 5+, there is not clean way to do this in a monkey patch so we fork the rails repo and made this adjustment.
           when /\Aunsigned_(?<type>.+)\z/
             type = $~[:type].to_sym
             options[:unsigned] = true
