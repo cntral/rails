@@ -3068,6 +3068,42 @@ module ApplicationTests
       assert_equal true, ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.decode_dates
     end
 
+    test "Mysql2Adapter.unsigned_primary_keys is false by default" do
+      app_file "config/initializers/active_record.rb", <<~RUBY
+        ActiveRecord::Base.establish_connection(adapter: "mysql2")
+      RUBY
+
+      app "development"
+
+      assert_equal false, ActiveRecord::ConnectionAdapters::Mysql2Adapter.unsigned_primary_keys
+    end
+
+    test "Mysql2Adapter.unsigned_primary_keys can be configured via config.active_record.mysql_adapter_unsigned_primary_keys" do
+      remove_from_config '.*config\.load_defaults.*\n'
+      add_to_config "config.active_record.mysql_adapter_unsigned_primary_keys = true"
+
+      app_file "config/initializers/active_record.rb", <<~RUBY
+        ActiveRecord::Base.establish_connection(adapter: "mysql2")
+      RUBY
+
+      app "development"
+
+      assert_equal true, ActiveRecord::ConnectionAdapters::Mysql2Adapter.unsigned_primary_keys
+    end
+
+    test "TrilogyAdapter.unsigned_primary_keys can be configured via config.active_record.mysql_adapter_unsigned_primary_keys" do
+      remove_from_config '.*config\.load_defaults.*\n'
+      add_to_config "config.active_record.mysql_adapter_unsigned_primary_keys = true"
+
+      app_file "config/initializers/active_record.rb", <<~RUBY
+        ActiveRecord::Base.establish_connection(adapter: "trilogy")
+      RUBY
+
+      app "development"
+
+      assert_equal true, ActiveRecord::ConnectionAdapters::TrilogyAdapter.unsigned_primary_keys
+    end
+
     test "SQLite3Adapter.strict_strings_by_default is true by default for new apps" do
       app_file "config/initializers/active_record.rb", <<~RUBY
         ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
