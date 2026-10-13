@@ -876,4 +876,39 @@ class TimeZoneTest < ActiveSupport::TestCase
     loaded = YAML.respond_to?(:unsafe_load) ? YAML.unsafe_load(payload) : YAML.load(payload)
     assert_equal(ActiveSupport::TimeZone["Pacific/Honolulu"], loaded)
   end
+  def test_pacific_time_canada_and_alberta_mappings
+    pacific_canada = ActiveSupport::TimeZone["Pacific Time (Canada)"]
+    alberta = ActiveSupport::TimeZone["Alberta"]
+    pacific_us = ActiveSupport::TimeZone["Pacific Time (US & Canada)"]
+    mountain_us = ActiveSupport::TimeZone["Mountain Time (US & Canada)"]
+
+    assert_equal "America/Vancouver", pacific_canada.tzinfo.name
+    assert_equal "America/Edmonton", alberta.tzinfo.name
+    assert_equal "America/Los_Angeles", pacific_us.tzinfo.name
+    assert_equal "America/Denver", mountain_us.tzinfo.name
+  end
+
+  def test_country_zones_include_pacific_time_canada_and_alberta
+    ca_zones = ActiveSupport::TimeZone.country_zones(:ca)
+
+    assert_includes ca_zones, ActiveSupport::TimeZone["Pacific Time (Canada)"]
+    assert_includes ca_zones, ActiveSupport::TimeZone["Alberta"]
+    assert_not_includes ca_zones.map(&:name), "America/Vancouver"
+    assert_not_includes ca_zones.map(&:name), "America/Edmonton"
+  end
+
+  def test_manitoba_mapping
+    manitoba = ActiveSupport::TimeZone["Manitoba"]
+    central_us = ActiveSupport::TimeZone["Central Time (US & Canada)"]
+
+    assert_equal "America/Winnipeg", manitoba.tzinfo.name
+    assert_equal "America/Chicago", central_us.tzinfo.name
+  end
+
+  def test_country_zones_include_manitoba
+    ca_zones = ActiveSupport::TimeZone.country_zones(:ca)
+
+    assert_includes ca_zones, ActiveSupport::TimeZone["Manitoba"]
+    assert_not_includes ca_zones.map(&:name), "America/Winnipeg"
+  end
 end
